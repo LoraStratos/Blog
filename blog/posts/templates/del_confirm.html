@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block navigation %}
+     <a href="{% url 'index' %}"><p>Главная</p></a>
+     <a href="{% url 'profile' return_key %}"><p>Назад</p></a>
+{% endblock %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">УДАЛИТЬ</button>
+    </form>
+{% endblock %}

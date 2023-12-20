@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block navigation %}
+     <a href="{% url 'index' %}"><p>Главная</p></a>
+     <a href="{% url 'profile' pk %}"><p>Назад</p></a>
+{% endblock %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <a href="{% url 'delete1' pk %}"><button>УДАЛИТЬ ПОЛЬЗОВАТЕЛЯ</button></a>
+{% endblock %}

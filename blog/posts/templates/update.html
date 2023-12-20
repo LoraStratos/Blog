@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block navigation %}
+        <a href="{% url 'index' %}"><p>Главная</p></a>
+        <a href="{% url 'all_user' %}"><p>Все пользователи</p></a>
+        <a href="{% url 'profile' request.user.id %}"><p>Профиль</p></a>
+        <a href="{% url 'logout' %}"><p>Выйти</p></a>
+        <a href="{% url 'wanna_delete' request.user.id %}"><p>Удалить пользователя</p></a>
+{% endblock %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">СОХРАНИТЬ</button>
+    </form>
+{% endblock %}
