@@ -1,11 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.core.paginator import Paginator
-from django.http import HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, DeleteView, ListView
 from .forms import *
@@ -40,7 +38,7 @@ class Registration(CreateView):
     extra_context = {
         'title': 'Создание пользователя'
     }
-    success_url = reverse_lazy('login')
+    success_url = reverse_lazy('user/profile.html')
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -72,11 +70,11 @@ def page_with_message(request, pk):
     else:
         form = CommentsForm()
 
-    message_q = page_object.message_set.all()
+    # message_q = page_object.message_set.all()
     context = {
         'user_object': user_object,
         'page_object': page_object,
-        'message_q': message_q,
+        # 'message_q': message_q,
         'form': form,
         'title': user_object.username
     }
@@ -97,21 +95,21 @@ def update_page(request, pk):
 
                 user.save()
 
-                profile = Profile.objects.get(pk=pk)
+                profile = User.objects.get(pk=pk)
                 profile.status = cd['status']
                 profile.date_birth = cd['date_birth']
                 profile.about = cd['about']
 
                 profile.save()
 
-                return redirect(reverse_lazy('user/profile', kwargs={'pk': pk}))
+                return redirect(reverse_lazy('user/profile.html', kwargs={'pk': pk}))
         else:
             stub = get_user_model().objects.get(pk=pk).first_name
             stub2 = get_user_model().objects.get(pk=pk).last_name
             stub3 = get_user_model().objects.get(pk=pk).image
-            stub4 = Profile.objects.get(pk=pk).status
-            stub5 = Profile.objects.get(pk=pk).date_birth
-            stub6 = Profile.objects.get(pk=pk).about
+            stub4 = User.objects.get(pk=pk).status
+            stub5 = User.objects.get(pk=pk).date_birth
+            stub6 = User.objects.get(pk=pk).about
 
             dict1 = {
                 'first_name': stub,
@@ -131,53 +129,33 @@ def update_page(request, pk):
     else:
         return redirect('/')
 
-def wanna_delete(request, pk):
-    return render(request, 'confirm_del_user.html', context={'title': 'Удаление пользователя', 'pk': pk})
+class UserDelete(DeleteView):
+    model = User
+    context_object_name = 'user'
+    template_name = 'confirm_del_user.html'
+    success_url = reverse_lazy('index')
 
-def delete_u_and_p(pk):
-    user = get_object_or_404(get_user_model(), pk=pk)
-    page = user.page
-    page.delete()
-    user.delete()
-    return redirect('/')
+    def user(self, pk):
+        user = User.objects.filter(user=self.request.user, pk=pk)
+        if user:
+            user.delete()
+        return redirect('index')
 
-class EditComment(LoginRequiredMixin, UpdateView):
+class EditComment(UpdateView):
     model = Message
-    form_class = CommentsForm
+    form_class = EditCommentForm
     template_name = 'edit.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        self.return_key = request.GET.get('return_key')
-        return super().dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        if self.return_key:
-            form.save()
-            return redirect(reverse_lazy('user/profile', kwargs={'pk': self.return_key}))
-        else:
-            return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['return_key'] = self.return_key
-        return context
+    success_url = reverse_lazy('index')
 
 
-class DelComment(LoginRequiredMixin, DeleteView):
+class DelComment(DeleteView):
     model = Message
     template_name = 'del_confirm.html'
-    extra_context = {
-        'title': 'Подтвердите удаление комментария'
-    }
+    context_object_name = 'message'
+    success_url = reverse_lazy('index')
 
-    def get_success_url(self):
-        return reverse_lazy('profile', kwargs={'pk': self.return_key})
-
-    def dispatch(self, request, *args, **kwargs):
-        self.return_key = request.GET.get('return_key')
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['return_key'] = self.return_key
-        return context
+    def delete_application(self, pk):
+        message = Message.objects.filter(user=self.request.user, pk=pk)
+        if message:
+            message.delete()
+        return redirect('index')

@@ -12,6 +12,5 @@ urlpatterns = [
     path('update/<pk>', update_page, name='update'),
     path('edit/<pk>', EditComment.as_view(), name='edit'),
     path('del_confirm/<pk>', DelComment.as_view(), name='del_confirm'),
-    path('del_user/<pk>', wanna_delete, name='wanna_delete'),
-    path('delete_user/<pk>', delete_u_and_p, name='delete1'),
+    path('delete_user/<pk>', UserDelete.as_view(), name='delete'),
 ]

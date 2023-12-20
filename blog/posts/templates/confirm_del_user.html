@@ -1,10 +1,13 @@
 {% extends 'base.html' %}
 {% block navigation %}
      <a href="{% url 'index' %}"><p>Главная</p></a>
-     <a href="{% url 'profile' pk %}"><p>Назад</p></a>
 {% endblock %}
 
 {% block content %}
-    <h1>{{ title }}</h1>
-    <a href="{% url 'delete1' pk %}"><button>УДАЛИТЬ ПОЛЬЗОВАТЕЛЯ</button></a>
+    <h3>Удаление пользователя</h3>
+    <p>Вы точно хотите удалить пользователя: {{ user.username }}?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="submit" value="Да, удалить">
+    </form>
 {% endblock %}

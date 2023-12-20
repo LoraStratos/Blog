@@ -9,9 +9,9 @@ class User(AbstractUser):
 
 
 class Profile(models.Model):
-    date_birth = models.DateField(blank=True, default=None, null=True)
+    date_birth = models.DateTimeField(verbose_name='Дата рождения', null=True, auto_now_add=True)
     status = models.CharField(max_length=1000, blank=True, default='Новый')
-    about = models.TextField(blank=True, default='Обо мне')
+    about = models.TextField(max_length=1000, blank=True, default='Обо мне')
 
 
 class Message(models.Model):
